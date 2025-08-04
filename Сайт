@@ -1,0 +1,1331 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор зарплаты АЗС</title>
+    <style>
+        /* Сброс стилей и базовые настройки */
+        .azs-calculator * {
+            box-sizing: border-box !important;
+        }
+        
+        .azs-calculator {
+            font-family: 'Arial', sans-serif !important;
+            max-width: 1200px !important;
+            margin: 0 auto !important;
+            padding: 24px !important;
+            background: #ffffff !important;
+            color: #000000 !important;
+            line-height: 1.5 !important;
+        }
+        
+        .azs-calculator h1 {
+            text-transform: uppercase !important;
+            letter-spacing: 1px !important;
+            font-size: 2.25rem !important;
+            font-weight: 800 !important;
+            color: #b91c1c !important;
+            text-align: center !important;
+            margin-bottom: 2rem !important;
+            margin-top: 0 !important;
+        }
+        
+        .azs-calculator h2 {
+            text-transform: uppercase !important;
+            letter-spacing: 1px !important;
+            font-size: 1.875rem !important;
+            font-weight: 800 !important;
+            color: #b91c1c !important;
+            margin-bottom: 1rem !important;
+            margin-top: 0 !important;
+        }
+        
+        .azs-calculator h3 {
+            font-weight: 600 !important;
+            font-size: 1.125rem !important;
+            margin: 1rem 0 0.5rem 0 !important;
+            color: #000000 !important;
+        }
+        
+        /* Основные контейнеры */
+        .azs-calculator .position-select-container {
+            margin-bottom: 2rem !important;
+        }
+        
+        .azs-calculator .section {
+            transition: opacity 0.5s ease-in-out !important;
+            opacity: 0 !important;
+            background: #ffffff !important;
+            padding: 1.5rem !important;
+            border-radius: 8px !important;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+            margin-bottom: 2rem !important;
+            border: 1px solid #e5e7eb !important;
+        }
+        
+        .azs-calculator .section.visible {
+            opacity: 1 !important;
+        }
+        
+        /* Поля ввода */
+        .azs-calculator .field, .azs-calculator .subfield {
+            transition: opacity 0.5s ease-in-out !important;
+            opacity: 0 !important;
+            margin-bottom: 1rem !important;
+            position: relative !important;
+        }
+        
+        .azs-calculator .field.visible, .azs-calculator .subfield.visible {
+            opacity: 1 !important;
+        }
+        
+        .azs-calculator .grid {
+            display: grid !important;
+            grid-template-columns: 1fr !important;
+            gap: 1rem !important;
+        }
+        
+        /* Лейблы */
+        .azs-calculator label {
+            display: block !important;
+            font-size: 0.875rem !important;
+            font-weight: bold !important;
+            color: #000000 !important;
+            margin-bottom: 0.5rem !important;
+        }
+        
+        /* Инпуты и селекты */
+        .azs-calculator input[type="number"], 
+        .azs-calculator select {
+            padding: 0.75rem !important;
+            width: 100% !important;
+            border: 2px solid #000000 !important;
+            border-radius: 6px !important;
+            font-size: 1rem !important;
+            background: #ffffff !important;
+            color: #000000 !important;
+            outline: none !important;
+            transition: border-color 0.2s !important;
+        }
+        
+        .azs-calculator input[type="number"]:focus, 
+        .azs-calculator select:focus {
+            border-color: #b91c1c !important;
+        }
+        
+        .azs-calculator input.border-red-500 {
+            border-color: #ef4444 !important;
+        }
+        
+        /* Ползунки */
+        .azs-calculator input[type="range"] {
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            -webkit-appearance: none !important;
+            height: 8px !important;
+            background: linear-gradient(to right, #b91c1c 0%, #b91c1c var(--fill-percent, 0%), #e0e0e0 var(--fill-percent, 0%), #e0e0e0 100%) !important;
+            border-radius: 4px !important;
+            outline: none !important;
+        }
+        
+        .azs-calculator input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none !important;
+            width: 20px !important;
+            height: 20px !important;
+            background: #b91c1c !important;
+            border-radius: 50% !important;
+            margin-top: -6px !important;
+            cursor: pointer !important;
+            position: relative !important;
+            z-index: 2 !important;
+        }
+        
+        .azs-calculator input[type="range"]::-moz-range-thumb {
+            width: 20px !important;
+            height: 20px !important;
+            background: #b91c1c !important;
+            border-radius: 50% !important;
+            border: none !important;
+            cursor: pointer !important;
+        }
+        
+        .azs-calculator input[type="range"]::-moz-range-track {
+            background: transparent !important;
+        }
+        
+        /* Flex контейнеры */
+        .azs-calculator .flex {
+            display: flex !important;
+        }
+        
+        .azs-calculator .items-center {
+            align-items: center !important;
+        }
+        
+        .azs-calculator .gap-4 {
+            gap: 1rem !important;
+        }
+        
+        .azs-calculator .mt-1 {
+            margin-top: 0.25rem !important;
+        }
+        
+        .azs-calculator .mt-4 {
+            margin-top: 1rem !important;
+        }
+        
+        /* Подсказки */
+        .azs-calculator .hint {
+            cursor: pointer !important;
+            color: white !important;
+            background-color: #b91c1c !important;
+            border-radius: 50% !important;
+            width: 24px !important;
+            height: 24px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            font-size: 1.2rem !important;
+            margin-left: 8px !important;
+            border: none !important;
+            text-decoration: none !important;
+            z-index: 1000 !important;
+            flex-shrink: 0 !important;
+            font-weight: bold !important;
+        }
+        
+        .azs-calculator .hint-text {
+            display: none !important;
+            text-align: left !important;
+            background-color: #ffffff !important;
+            border: 1px solid #000000 !important;
+            padding: 8px !important;
+            border-radius: 4px !important;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+            position: absolute !important;
+            top: 100% !important;
+            left: 0 !important;
+            z-index: 9999 !important;
+            width: 300px !important;
+            max-width: 90vw !important;
+            box-sizing: border-box !important;
+            margin: 4px 0 0 0 !important;
+            font-size: 0.875rem !important;
+            color: #666 !important;
+            font-weight: normal !important;
+        }
+        
+        .azs-calculator .hint-text.visible {
+            display: block !important;
+        }
+        
+        .azs-calculator .slider-value {
+            margin-left: 8px !important;
+            font-weight: bold !important;
+            color: #b91c1c !important;
+            white-space: nowrap !important;
+        }
+        
+        /* Кнопки */
+        .azs-calculator button {
+            transition: background-color 0.3s, transform 0.2s !important;
+            padding: 0.75rem 1rem !important;
+            border-radius: 6px !important;
+            font-weight: 600 !important;
+            border: none !important;
+            cursor: pointer !important;
+            font-size: 1rem !important;
+        }
+        
+        .azs-calculator button:hover {
+            transform: scale(1.05) !important;
+        }
+        
+        .azs-calculator .btn-primary {
+            background-color: #b91c1c !important;
+            color: white !important;
+        }
+        
+        .azs-calculator .btn-primary:hover {
+            background-color: #991b1b !important;
+        }
+        
+        .azs-calculator .btn-secondary {
+            background-color: #000000 !important;
+            color: white !important;
+        }
+        
+        .azs-calculator .btn-secondary:hover {
+            background-color: #374151 !important;
+        }
+        
+        /* Результаты */
+        .azs-calculator .result {
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out !important;
+            opacity: 0 !important;
+            transform: translateY(20px) !important;
+            margin-top: 1rem !important;
+            font-size: 1.125rem !important;
+            color: #000000 !important;
+        }
+        
+        .azs-calculator .result.visible {
+            opacity: 1 !important;
+            transform: translateY(0) !important;
+        }
+        
+        .azs-calculator .result p {
+            margin: 0.5rem 0 !important;
+        }
+        
+        .azs-calculator .result .font-bold {
+            font-weight: bold !important;
+        }
+        
+        .azs-calculator .result .text-lg {
+            font-size: 1.125rem !important;
+        }
+        
+        .azs-calculator .result ul {
+            list-style-type: disc !important;
+            padding-left: 1.25rem !important;
+            margin: 0.5rem 0 !important;
+        }
+        
+        .azs-calculator .result li {
+            margin: 0.25rem 0 !important;
+        }
+        
+        .azs-calculator .text-red-500 {
+            color: #ef4444 !important;
+        }
+        
+        /* Утилитарные классы */
+        .azs-calculator .hidden {
+            display: none !important;
+        }
+        
+        .azs-calculator .w-full {
+            width: 100% !important;
+        }
+        
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .azs-calculator {
+                padding: 1rem !important;
+            }
+            
+            .azs-calculator h1 {
+                font-size: 1.75rem !important;
+            }
+            
+            .azs-calculator h2 {
+                font-size: 1.5rem !important;
+            }
+            
+            .azs-calculator .hint-text {
+                width: 280px !important;
+                max-width: 85vw !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="azs-calculator">
+        <h1>Рассчитаем зарплату на АЗС вместе!</h1>
+
+        <!-- Выбор должности -->
+        <div class="position-select-container">
+            <label>Выбери должность, дружище</label>
+            <select id="position_select" class="w-full">
+                <option value="manager">Заместитель директора/Менеджер</option>
+                <option value="cashier">Кассир</option>
+                <option value="cook">Повар</option>
+            </select>
+        </div>
+
+        <!-- Заместитель директора/Менеджер -->
+        <div id="manager_section" class="section" style="display: none;">
+            <h2>Заместитель директора/Менеджер</h2>
+            <div class="grid">
+                <div id="manager_field1" class="field">
+                    <label>Расскажи, сколько был оборот? (ТО)</label>
+                    <div class="flex items-center mt-1">
+                        <input type="number" step="any" id="manager_to_base" class="w-full">
+                        <span class="hint" onclick="toggleHint('manager_to_base_hint')">?</span>
+                    </div>
+                    <p id="manager_to_base_hint" class="hint-text">Общий оборот за период в рублях. Введите положительное число.</p>
+                </div>
+                <div id="manager_field2" class="field" style="display: none;">
+                    <label>Как дела с выполнением плана продаж? (%)</label>
+                    <div class="flex items-center mt-1">
+                        <input type="number" id="manager_to" class="w-full">
+                        <span class="hint" onclick="toggleHint('manager_to_hint')">?</span>
+                    </div>
+                    <p id="manager_to_hint" class="hint-text">Процент выполнения плана продаж (от 0% и выше).</p>
+                </div>
+                <div id="manager_field3" class="field" style="display: none;">
+                    <label>Была ли проверка чек-листа технолога?</label>
+                    <select id="manager_chltech_check" class="w-full">
+                        <option value="">Выберите</option>
+                        <option value="yes">Да</option>
+                        <option value="no">Нет/Не знаю</option>
+                    </select>
+                    <div id="manager_chltech_input" class="subfield" style="display: none; margin-top: 1rem;">
+                        <label>Что там с чек-листом технолога? (ЧЛтех, %)</label>
+                        <div class="flex items-center mt-1">
+                            <input type="number" id="manager_chltech" class="w-full">
+                            <span class="hint" onclick="toggleHint('manager_chltech_hint')">?</span>
+                        </div>
+                        <p id="manager_chltech_hint" class="hint-text">Процент выполнения чек-листа технолога (от 0% до 100%).</p>
+                    </div>
+                </div>
+                <div id="manager_field4" class="field" style="display: none;">
+                    <label>Была ли проверка ТП?</label>
+                    <select id="manager_tp_check" class="w-full">
+                        <option value="">Выберите</option>
+                        <option value="yes">Да</option>
+                        <option value="no">Нет/Не знаю</option>
+                    </select>
+                    <div id="manager_ik_input" class="subfield" style="display: none; margin-top: 1rem;">
+                        <label>Индекс качества ТП и ОВК? (ИК, %)</label>
+                        <div class="flex items-center mt-1">
+                            <input type="number" id="manager_ik" class="w-full">
+                            <span class="hint" onclick="toggleHint('manager_ik_hint')">?</span>
+                        </div>
+                        <p id="manager_ik_hint" class="hint-text">Индекс качества ТП и ОВК в процентах (от 0% до 100%).</p>
+                    </div>
+                </div>
+                <div id="manager_field5" class="field" style="display: none;">
+                    <label>Скорость обслуживания? (%)</label>
+                    <div class="flex items-center mt-1">
+                        <input type="number" id="manager_speed" class="w-full">
+                        <span class="hint" onclick="toggleHint('manager_speed_hint')">?</span>
+                    </div>
+                    <p id="manager_speed_hint" class="hint-text">Процент скорости обслуживания (от 0% до 100%).</p>
+                </div>
+                <div id="manager_field6" class="field" style="display: none;">
+                    <label>Сколько было обращений?</label>
+                    <div class="flex items-center mt-1">
+                        <input type="number" step="any" id="manager_complaints" class="w-full">
+                        <span class="hint" onclick="toggleHint('manager_complaints_hint')">?</span>
+                    </div>
+                    <p id="manager_complaints_hint" class="hint-text">Количество обращений (жалоб). Введите неотрицательное число.</p>
+                </div>
+                <div id="manager_field7" class="field" style="display: none;">
+                    <label>HR индекс? (%)</label>
+                    <div class="flex items-center mt-1">
+                        <input type="number" id="manager_hr" class="w-full">
+                        <span class="hint" onclick="toggleHint('manager_hr_hint')">?</span>
+                    </div>
+                    <p id="manager_hr_hint" class="hint-text">HR индекс в процентах (от 0% до 100%).</p>
+                </div>
+                <div id="manager_field8" class="field" style="display: none;">
+                    <label>Сколько заместителей директоров?</label>
+                    <div class="flex items-center mt-1">
+                        <input type="number" step="1" id="manager_num_deputies" class="w-full">
+                        <span class="hint" onclick="toggleHint('manager_num_deputies_hint')">?</span>
+                    </div>
+                    <p id="manager_num_deputies_hint" class="hint-text">Количество заместителей директоров. Введите целое положительное число.</p>
+                </div>
+            </div>
+            <div class="flex gap-4 mt-4">
+                <button onclick="calculateManager()" class="btn-primary">Давай посчитаем!</button>
+                <button onclick="copyManagerResults()" class="btn-secondary">Копировать результаты</button>
+            </div>
+            <div id="manager_result" class="result"></div>
+        </div>
+
+        <!-- Кассир -->
+        <div id="cashier_section" class="section" style="display: none;">
+            <h2>Кассир</h2>
+            <div class="grid">
+                <div id="cashier_field1" class="field">
+                    <label>Какая ставка?</label>
+                    <div class="flex items-center mt-1">
+                        <input type="number" step="any" id="cashier_rate" class="w-full">
+                        <span class="hint" onclick="toggleHint('cashier_rate_hint')">?</span>
+                    </div>
+                    <p id="cashier_rate_hint" class="hint-text">Часовая ставка в рублях. Введите положительное число.</p>
+                </div>
+                <div id="cashier_field2" class="field" style="display: none;">
+                    <label>Сколько часов отработал сотрудник?</label>
+                    <div class="flex items-center mt-1">
+                        <input type="range" min="1" max="24" step="0.5" value="1" id="cashier_hours_employee" class="w-full">
+                        <span class="slider-value" id="cashier_hours_employee_value">1ч</span>
+                        <span class="hint" onclick="toggleHint('cashier_hours_employee_hint')">?</span>
+                    </div>
+                    <p id="cashier_hours_employee_hint" class="hint-text">Количество отработанных часов сотрудником. Выберите от 1 до 24 часов.</p>
+                </div>
+                <div id="cashier_field3" class="field" style="display: none;">
+                    <label>Сколько часов в смене?</label>
+                    <div class="flex items-center mt-1">
+                        <input type="number" step="any" id="cashier_hours_shift" class="w-full">
+                        <span class="hint" onclick="toggleHint('cashier_hours_shift_hint')">?</span>
+                    </div>
+                    <p id="cashier_hours_shift_hint" class="hint-text">Общее количество часов в смене. Введите положительное число.</p>
+                </div>
+                <div id="cashier_field4" class="field" style="display: none;">
+                    <label>Расскажи, сколько был оборот? (ТО)</label>
+                    <div class="flex items-center mt-1">
+                        <input type="number" step="any" id="cashier_to_base" class="w-full">
+                        <span class="hint" onclick="toggleHint('cashier_to_base_hint')">?</span>
+                    </div>
+                    <p id="cashier_to_base_hint" class="hint-text">Общий оборот за период в рублях. Введите положительное число.</p>
+                </div>
+                <div id="cashier_field5" class="field" style="display: none;">
+                    <label>Как дела с выполнением плана продаж? (%)</label>
+                    <div class="flex items-center mt-1">
+                        <input type="number" id="cashier_to" class="w-full">
+                        <span class="hint" onclick="toggleHint('cashier_to_hint')">?</span>
+                    </div>
+                    <p id="cashier_to_hint" class="hint-text">Процент выполнения плана продаж (от 0% и выше).</p>
+                </div>
+                <div id="cashier_field6" class="field" style="display: none;">
+                    <label>Была ли проверка чек-листа технолога?</label>
+                    <select id="cashier_chltech_check" class="w-full">
+                        <option value="">Выберите</option>
+                        <option value="yes">Да</option>
+                        <option value="no">Нет/Не знаю</option>
+                    </select>
+                    <div id="cashier_chltech_input" class="subfield" style="display: none; margin-top: 1rem;">
+                        <label>Что там с чек-листом технолога? (ЧЛтех, %)</label>
+                        <div class="flex items-center mt-1">
+                            <input type="number" id="cashier_chltech" class="w-full">
+                            <span class="hint" onclick="toggleHint('cashier_chltech_hint')">?</span>
+                        </div>
+                        <p id="cashier_chltech_hint" class="hint-text">Процент выполнения чек-листа технолога (от 0% до 100%).</p>
+                    </div>
+                </div>
+                <div id="cashier_field7" class="field" style="display: none;">
+                    <label>Была ли проверка ТП?</label>
+                    <select id="cashier_tp_check" class="w-full">
+                        <option value="">Выберите</option>
+                        <option value="yes">Да</option>
+                        <option value="no">Нет/Не знаю</option>
+                    </select>
+                    <div id="cashier_ik_input" class="subfield" style="display: none; margin-top: 1rem;">
+                        <label>Индекс качества ТП и ОВК? (ИК, %)</label>
+                        <div class="flex items-center mt-1">
+                            <input type="number" id="cashier_ik" class="w-full">
+                            <span class="hint" onclick="toggleHint('cashier_ik_hint')">?</span>
+                        </div>
+                        <p id="cashier_ik_hint" class="hint-text">Индекс качества ТП и ОВК в процентах (от 0% до 100%).</p>
+                    </div>
+                </div>
+                <div id="cashier_field8" class="field" style="display: none;">
+                    <label>Сколько было жалоб?</label>
+                    <div class="flex items-center mt-1">
+                        <input type="number" step="any" id="cashier_complaints" class="w-full">
+                        <span class="hint" onclick="toggleHint('cashier_complaints_hint')">?</span>
+                    </div>
+                    <p id="cashier_complaints_hint" class="hint-text">Количество жалоб. Введите неотрицательное число.</p>
+                </div>
+                <div id="cashier_field9" class="field" style="display: none;">
+                    <label>План по продажам кофе? (%)</label>
+                    <div class="flex items-center mt-1">
+                        <input type="number" id="cashier_coffee" class="w-full">
+                        <span class="hint" onclick="toggleHint('cashier_coffee_hint')">?</span>
+                    </div>
+                    <p id="cashier_coffee_hint" class="hint-text">Процент выполнения плана по продажам кофе (от 0% и выше).</p>
+                </div>
+                <div id="cashier_field10" class="field" style="display: none;">
+                    <label>Проникновение моб. приложения через кассы ПКО? (МПкафе, %)</label>
+                    <div class="flex items-center mt-1">
+                        <input type="number" id="cashier_mpcafe" class="w-full">
+                        <span class="hint" onclick="toggleHint('cashier_mpcafe_hint')">?</span>
+                    </div>
+                    <p id="cashier_mpcafe_hint" class="hint-text">Процент проникновения мобильного приложения через кассы ПКО (от 0% до 100%).</p>
+                </div>
+                <div id="cashier_field11" class="field" style="display: none;">
+                    <label>План на МБ? (%)</label>
+                    <div class="flex items-center mt-1">
+                        <input type="number" id="cashier_plan_mb" class="w-full">
+                        <span class="hint" onclick="toggleHint('cashier_plan_mb_hint')">?</span>
+                    </div>
+                    <p id="cashier_plan_mb_hint" class="hint-text">Плановый процент на МБ (от 0% до 100%).</p>
+                </div>
+            </div>
+            <div class="flex gap-4 mt-4">
+                <button onclick="calculateCashier()" class="btn-primary">Давай посчитаем!</button>
+                <button onclick="copyCashierResults()" class="btn-secondary">Копировать результаты</button>
+            </div>
+            <div id="cashier_result" class="result"></div>
+        </div>
+
+        <!-- Повар -->
+        <div id="cook_section" class="section" style="display: none;">
+            <h2>Повар</h2>
+            <div class="grid">
+                <div id="cook_field1" class="field">
+                    <label>Какая ставка?</label>
+                    <div class="flex items-center mt-1">
+                        <input type="number" step="any" id="cook_rate" class="w-full">
+                        <span class="hint" onclick="toggleHint('cook_rate_hint')">?</span>
+                    </div>
+                    <p id="cook_rate_hint" class="hint-text">Часовая ставка в рублях. Введите положительное число.</p>
+                </div>
+                <div id="cook_field2" class="field" style="display: none;">
+                    <label>Сколько часов отработал сотрудник?</label>
+                    <div class="flex items-center mt-1">
+                        <input type="range" min="1" max="24" step="0.5" value="1" id="cook_hours_employee" class="w-full">
+                        <span class="slider-value" id="cook_hours_employee_value">1ч</span>
+                        <span class="hint" onclick="toggleHint('cook_hours_employee_hint')">?</span>
+                    </div>
+                    <p id="cook_hours_employee_hint" class="hint-text">Количество отработанных часов сотрудником. Выберите от 1 до 24 часов.</p>
+                </div>
+                <div id="cook_field3" class="field" style="display: none;">
+                    <label>Сколько часов в смене?</label>
+                    <div class="flex items-center mt-1">
+                        <input type="number" step="any" id="cook_hours_shift" class="w-full">
+                        <span class="hint" onclick="toggleHint('cook_hours_shift_hint')">?</span>
+                    </div>
+                    <p id="cook_hours_shift_hint" class="hint-text">Общее количество часов в смене. Введите положительное число.</p>
+                </div>
+                <div id="cook_field4" class="field" style="display: none;">
+                    <label>Расскажи, сколько был оборот? (ТО)</label>
+                    <div class="flex items-center mt-1">
+                        <input type="number" step="any" id="cook_to_base" class="w-full">
+                        <span class="hint" onclick="toggleHint('cook_to_base_hint')">?</span>
+                    </div>
+                    <p id="cook_to_base_hint" class="hint-text">Общий оборот за период в рублях. Введите положительное число.</p>
+                </div>
+                <div id="cook_field5" class="field" style="display: none;">
+                    <label>Как дела с выполнением плана продаж? (%)</label>
+                    <div class="flex items-center mt-1">
+                        <input type="number" id="cook_to" class="w-full">
+                        <span class="hint" onclick="toggleHint('cook_to_hint')">?</span>
+                    </div>
+                    <p id="cook_to_hint" class="hint-text">Процент выполнения плана продаж (от 0% и выше).</p>
+                </div>
+                <div id="cook_field6" class="field" style="display: none;">
+                    <label>Была ли проверка чек-листа технолога?</label>
+                    <select id="cook_chltech_check" class="w-full">
+                        <option value="">Выберите</option>
+                        <option value="yes">Да</option>
+                        <option value="no">Нет/Не знаю</option>
+                    </select>
+                    <div id="cook_chltech_input" class="subfield" style="display: none; margin-top: 1rem;">
+                        <label>Что там с чек-листом технолога? (ЧЛтех, %)</label>
+                        <div class="flex items-center mt-1">
+                            <input type="number" id="cook_chltech" class="w-full">
+                            <span class="hint" onclick="toggleHint('cook_chltech_hint')">?</span>
+                        </div>
+                        <p id="cook_chltech_hint" class="hint-text">Процент выполнения чек-листа технолога (от 0% до 100%).</p>
+                    </div>
+                </div>
+                <div id="cook_field7" class="field" style="display: none;">
+                    <label>Была ли проверка ТП?</label>
+                    <select id="cook_tp_check" class="w-full">
+                        <option value="">Выберите</option>
+                        <option value="yes">Да</option>
+                        <option value="no">Нет/Не знаю</option>
+                    </select>
+                    <div id="cook_ik_input" class="subfield" style="display: none; margin-top: 1rem;">
+                        <label>Индекс качества ТП и ОВК? (ИК, %)</label>
+                        <div class="flex items-center mt-1">
+                            <input type="number" id="cook_ik" class="w-full">
+                            <span class="hint" onclick="toggleHint('cook_ik_hint')">?</span>
+                        </div>
+                        <p id="cook_ik_hint" class="hint-text">Индекс качества ТП и ОВК в процентах (от 0% до 100%).</p>
+                    </div>
+                </div>
+                <div id="cook_field8" class="field" style="display: none;">
+                    <label>Сколько было жалоб?</label>
+                    <div class="flex items-center mt-1">
+                        <input type="number" step="any" id="cook_complaints" class="w-full">
+                        <span class="hint" onclick="toggleHint('cook_complaints_hint')">?</span>
+                    </div>
+                    <p id="cook_complaints_hint" class="hint-text">Количество жалоб. Введите неотрицательное число.</p>
+                </div>
+                <div id="cook_field9" class="field" style="display: none;">
+                    <label>План по продажам кофе? (%)</label>
+                    <div class="flex items-center mt-1">
+                        <input type="number" id="cook_coffee" class="w-full">
+                        <span class="hint" onclick="toggleHint('cook_coffee_hint')">?</span>
+                    </div>
+                    <p id="cook_coffee_hint" class="hint-text">Процент выполнения плана по продажам кофе (от 0% и выше).</p>
+                </div>
+                <div id="cook_field10" class="field" style="display: none;">
+                    <label>Проникновение моб. приложения через кассы ПКО? (МПкафе, %)</label>
+                    <div class="flex items-center mt-1">
+                        <input type="number" id="cook_mpcafe" class="w-full">
+                        <span class="hint" onclick="toggleHint('cook_mpcafe_hint')">?</span>
+                    </div>
+                    <p id="cook_mpcafe_hint" class="hint-text">Процент проникновения мобильного приложения через кассы ПКО (от 0% до 100%).</p>
+                </div>
+                <div id="cook_field11" class="field" style="display: none;">
+                    <label>План на МБ? (%)</label>
+                    <div class="flex items-center mt-1">
+                        <input type="number" id="cook_plan_mb" class="w-full">
+                        <span class="hint" onclick="toggleHint('cook_plan_mb_hint')">?</span>
+                    </div>
+                    <p id="cook_plan_mb_hint" class="hint-text">Плановый процент на МБ (от 0% до 100%).</p>
+                </div>
+            </div>
+            <div class="flex gap-4 mt-4">
+                <button onclick="calculateCook()" class="btn-primary">Давай посчитаем!</button>
+                <button onclick="copyCookResults()" class="btn-secondary">Копировать результаты</button>
+            </div>
+            <div id="cook_result" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        // Функция для переключения видимости подсказки
+        function toggleHint(id) {
+            const element = document.getElementById(id);
+            if (element.classList.contains('visible')) {
+                element.classList.remove('visible');
+            } else {
+                // Скрываем все остальные подсказки
+                document.querySelectorAll('.hint-text.visible').forEach(hint => {
+                    hint.classList.remove('visible');
+                });
+                element.classList.add('visible');
+            }
+        }
+
+        // Скрываем подсказки при клике вне их
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.hint') && !e.target.closest('.hint-text')) {
+                document.querySelectorAll('.hint-text.visible').forEach(hint => {
+                    hint.classList.remove('visible');
+                });
+            }
+        });
+
+        // Храним ссылки на слушатели для очистки
+        const listeners = {};
+
+        // Логика переключения секций
+        document.getElementById('position_select').addEventListener('change', function() {
+            const selected = this.value;
+            const sections = ['manager_section', 'cashier_section', 'cook_section'];
+
+            // Скрываем все секции и сбрасываем данные
+            sections.forEach(sec => {
+                const el = document.getElementById(sec);
+                el.style.display = 'none';
+                el.classList.remove('visible');
+                // Очищаем все поля ввода в секции
+                const inputs = el.querySelectorAll('input[type="number"], input[type="range"], select');
+                inputs.forEach(input => {
+                    if (input.type === 'range') {
+                        input.value = 1;
+                        const valueSpan = document.getElementById(`${sec.replace('_section', '')}_hours_employee_value`);
+                        if (valueSpan) valueSpan.textContent = '1ч';
+                    } else if (input.tagName === 'SELECT') {
+                        input.value = '';
+                    } else {
+                        input.value = '';
+                    }
+                });
+                // Очищаем результат
+                const result = document.getElementById(`${sec.replace('_section', '')}_result`);
+                result.innerHTML = '';
+                result.classList.remove('visible');
+                // Очищаем слушатели и сбрасываем видимость полей
+                clearFieldListeners(sec);
+                initSequentialFields(sec.replace('_section', ''));
+            });
+
+            // Показываем выбранную секцию
+            if (selected) {
+                const sec = document.getElementById(`${selected}_section`);
+                sec.style.display = 'block';
+                setTimeout(() => sec.classList.add('visible'), 100);
+                initSequentialFields(selected);
+            }
+        });
+
+        // По умолчанию показываем менеджера
+        const defaultSec = document.getElementById('manager_section');
+        defaultSec.style.display = 'block';
+        setTimeout(() => defaultSec.classList.add('visible'), 100);
+        initSequentialFields('manager');
+        setTimeout(() => document.getElementById('manager_field1').classList.add('visible'), 10);
+
+        // Real-time highlight для отрицательных значений
+        document.querySelectorAll('input[type="number"]').forEach(input => {
+            input.addEventListener('input', () => {
+                if (parseFloat(input.value) < 0) {
+                    input.classList.add('border-red-500');
+                } else {
+                    input.classList.remove('border-red-500');
+                }
+            });
+        });
+
+        // Блокировка нечисловых символов в number input
+        document.querySelectorAll('input[type="number"]').forEach(input => {
+            input.addEventListener('keydown', (e) => {
+                const allowedKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Enter'];
+                const isNumber = e.key >= '0' && e.key <= '9';
+                const isDot = e.key === '.' && !input.value.includes('.');
+                if (!isNumber && !isDot && !allowedKeys.includes(e.key)) {
+                    e.preventDefault();
+                }
+            });
+        });
+
+        // Очистка слушателей для секции
+        function clearFieldListeners(section) {
+            if (listeners[section]) {
+                listeners[section].forEach(({input, handler}) => {
+                    input.removeEventListener('input', handler);
+                    input.removeEventListener('change', handler);
+                });
+                listeners[section] = [];
+            }
+        }
+
+        // Инициализация последовательного показа полей
+        function initSequentialFields(section) {
+            const fieldCount = section === 'manager' ? 8 : 11;
+            // Скрываем все поля, кроме первого
+            for (let i = 2; i <= fieldCount; i++) {
+                const field = document.getElementById(`${section}_field${i}`);
+                if (field) {
+                    field.style.display = 'none';
+                    field.classList.remove('visible');
+                }
+            }
+            // Показываем первое поле
+            const firstField = document.getElementById(`${section}_field1`);
+            firstField.style.display = 'block';
+            setTimeout(() => firstField.classList.add('visible'), 10);
+            
+            // Скрываем подполя ввода для проверок
+            const chlInput = document.getElementById(`${section}_chltech_input`);
+            const ikInput = document.getElementById(`${section}_ik_input`);
+            if (chlInput) {
+                chlInput.style.display = 'none';
+                chlInput.classList.remove('visible');
+            }
+            if (ikInput) {
+                ikInput.style.display = 'none';
+                ikInput.classList.remove('visible');
+            }
+            
+            addFieldListeners(section, fieldCount);
+            addCheckListeners(section);
+        }
+
+        // Добавление слушателей для полей
+        function addFieldListeners(section, fieldCount) {
+            listeners[section] = [];
+
+            for (let i = 1; i < fieldCount; i++) {
+                const currentField = document.getElementById(`${section}_field${i}`);
+                const currentInput = currentField ? currentField.querySelector('input') : null;
+
+                if (currentInput) {
+                    const handler = () => {
+                        const value = currentInput.value.trim();
+                        if (value !== '' && parseFloat(value) >= 0) {
+                            const nextField = document.getElementById(`${section}_field${i + 1}`);
+                            if (nextField) {
+                                nextField.style.display = 'block';
+                                setTimeout(() => nextField.classList.add('visible'), 10);
+                            }
+                        }
+                    };
+                    currentInput.addEventListener('input', handler);
+                    listeners[section].push({input: currentInput, handler});
+                }
+            }
+        }
+
+        // Добавление слушателей для селектов проверок
+        function addCheckListeners(section) {
+            // Для ЧЛтех
+            const chlSelect = document.getElementById(`${section}_chltech_check`);
+            if (chlSelect) {
+                const handler = () => {
+                    const value = chlSelect.value;
+                    const inputDiv = document.getElementById(`${section}_chltech_input`);
+                    let nextField;
+                    
+                    if (section === 'manager') {
+                        nextField = document.getElementById(`${section}_field4`);
+                    } else {
+                        nextField = document.getElementById(`${section}_field7`);
+                    }
+                    
+                    if (value === 'yes') {
+                        inputDiv.style.display = 'block';
+                        setTimeout(() => inputDiv.classList.add('visible'), 10);
+                    } else if (value === 'no') {
+                        inputDiv.style.display = 'none';
+                        inputDiv.classList.remove('visible');
+                        if (nextField) {
+                            nextField.style.display = 'block';
+                            setTimeout(() => nextField.classList.add('visible'), 10);
+                        }
+                    }
+                };
+                chlSelect.addEventListener('change', handler);
+                listeners[section].push({input: chlSelect, handler});
+            }
+
+            // Для ТП (ИК)
+            const tpSelect = document.getElementById(`${section}_tp_check`);
+            if (tpSelect) {
+                const handler = () => {
+                    const value = tpSelect.value;
+                    const inputDiv = document.getElementById(`${section}_ik_input`);
+                    let nextField;
+                    
+                    if (section === 'manager') {
+                        nextField = document.getElementById(`${section}_field5`);
+                    } else {
+                        nextField = document.getElementById(`${section}_field8`);
+                    }
+                    
+                    if (value === 'yes') {
+                        inputDiv.style.display = 'block';
+                        setTimeout(() => inputDiv.classList.add('visible'), 10);
+                    } else if (value === 'no') {
+                        inputDiv.style.display = 'none';
+                        inputDiv.classList.remove('visible');
+                        if (nextField) {
+                            nextField.style.display = 'block';
+                            setTimeout(() => nextField.classList.add('visible'), 10);
+                        }
+                    }
+                };
+                tpSelect.addEventListener('change', handler);
+                listeners[section].push({input: tpSelect, handler});
+            }
+        }
+
+        function resetBorders(section) {
+            const elements = document.querySelectorAll(`#${section}_section input, #${section}_section select`);
+            elements.forEach(el => {
+                el.classList.remove('border-red-500');
+            });
+        }
+
+        function validateInputs(section, fields) {
+            let hasError = false;
+            fields.forEach(field => {
+                const input = document.getElementById(field);
+                const value = input.value.trim();
+                if (value === '' || (input.type === 'number' && parseFloat(value) < 0)) {
+                    hasError = true;
+                    input.classList.add('border-red-500');
+                }
+            });
+
+            // Валидация селектов и связанных инпутов
+            const chlCheck = document.getElementById(`${section}_chltech_check`);
+            const tpCheck = document.getElementById(`${section}_tp_check`);
+
+            if (chlCheck.value === '') {
+                hasError = true;
+                chlCheck.classList.add('border-red-500');
+            } else if (chlCheck.value === 'yes') {
+                const chlInput = document.getElementById(`${section}_chltech`);
+                const chlValue = chlInput.value.trim();
+                if (chlValue === '' || parseFloat(chlValue) < 0) {
+                    hasError = true;
+                    chlInput.classList.add('border-red-500');
+                }
+            }
+
+            if (tpCheck.value === '') {
+                hasError = true;
+                tpCheck.classList.add('border-red-500');
+            } else if (tpCheck.value === 'yes') {
+                const ikInput = document.getElementById(`${section}_ik`);
+                const ikValue = ikInput.value.trim();
+                if (ikValue === '' || parseFloat(ikValue) < 0) {
+                    hasError = true;
+                    ikInput.classList.add('border-red-500');
+                }
+            }
+
+            return hasError;
+        }
+
+        function calculateManager() {
+            resetBorders('manager');
+            const fields = ['manager_to_base', 'manager_to', 'manager_speed',
+                'manager_complaints', 'manager_hr', 'manager_num_deputies'];
+            const resultDiv = document.getElementById('manager_result');
+            resultDiv.classList.remove('visible');
+
+            if (validateInputs('manager', fields)) {
+                resultDiv.innerHTML = '<p class="text-red-500">Пожалуйста, перепроверьте введенные данные. Поля не могут быть пустыми или отрицательными.</p>';
+                setTimeout(() => resultDiv.classList.add('visible'), 10);
+                return;
+            }
+
+            const to_base = parseFloat(document.getElementById('manager_to_base').value);
+            const to_percent = parseFloat(document.getElementById('manager_to').value);
+            const speed_percent = parseFloat(document.getElementById('manager_speed').value);
+            const complaints = parseFloat(document.getElementById('manager_complaints').value);
+            const hr_percent = parseFloat(document.getElementById('manager_hr').value);
+            const num_deputies = parseFloat(document.getElementById('manager_num_deputies').value);
+
+            // Обработка ЧЛтех
+            const chltech_check = document.getElementById('manager_chltech_check').value;
+            let chltech_percent;
+            let coeff_chltech;
+            if (chltech_check === 'no') {
+                coeff_chltech = 1;
+                chltech_percent = 'Не проверялось';
+            } else {
+                chltech_percent = parseFloat(document.getElementById('manager_chltech').value);
+                if (chltech_percent < 85) {
+                    coeff_chltech = 0;
+                } else if (chltech_percent < 90) {
+                    coeff_chltech = 0.5;
+                } else if (chltech_percent < 95) {
+                    coeff_chltech = 1;
+                } else {
+                    coeff_chltech = 1.25;
+                }
+            }
+
+            // Обработка ИК (ТП)
+            const tp_check = document.getElementById('manager_tp_check').value;
+            let ik_percent;
+            let coeff_ik;
+            if (tp_check === 'no') {
+                coeff_ik = 1;
+                ik_percent = 'Не проверялось';
+            } else {
+                ik_percent = parseFloat(document.getElementById('manager_ik').value);
+                if (ik_percent < 85) {
+                    coeff_ik = 0;
+                } else if (ik_percent < 90) {
+                    coeff_ik = 0.75;
+                } else if (ik_percent < 95) {
+                    coeff_ik = 1;
+                } else {
+                    coeff_ik = 1.25;
+                }
+            }
+
+            let coeff_TO;
+            if (to_percent < 90) {
+                coeff_TO = 0.003;
+            } else if (to_percent < 100) {
+                coeff_TO = 0.006;
+            } else {
+                coeff_TO = 0.009;
+            }
+
+            let coeff_speed;
+            if (speed_percent < 95) {
+                coeff_speed = 0;
+            } else if (speed_percent < 100) {
+                coeff_speed = 1;
+            } else {
+                coeff_speed = 1.25;
+            }
+
+            let coeff_complaints;
+            if (complaints >= 4) {
+                coeff_complaints = 0.75;
+            } else if (complaints >= 2) {
+                coeff_complaints = 1;
+            } else {
+                coeff_complaints = 1.25;
+            }
+
+            let coeff_hr;
+            if (hr_percent <= 90) {
+                coeff_hr = 1;
+            } else {
+                coeff_hr = 1.5;
+            }
+
+            const average = (coeff_chltech + coeff_ik + coeff_speed + coeff_complaints + coeff_hr) / 5;
+            const to_with_coeff = to_base * coeff_TO;
+            const kpi = (to_with_coeff * average) / num_deputies;
+
+            // Тексты для вывода
+            const chltech_text = (typeof chltech_percent === 'string') ? `ЧЛтех: ${chltech_percent}, коэффициент: ${coeff_chltech}` : `ЧЛтех: ${chltech_percent}%, <85% → 0, 85-89% → 0.5, 90-94% → 1, ≥95% → 1.25. Итог: ${coeff_chltech}`;
+            const ik_text = (typeof ik_percent === 'string') ? `ИК: ${ik_percent}, коэффициент: ${coeff_ik}` : `ИК: ${ik_percent}%, <85% → 0, 85-89% → 0.75, 90-94% → 1, ≥95% → 1.25. Итог: ${coeff_ik}`;
+
+            resultDiv.innerHTML = `
+                <h3>Результат:</h3>
+                <p class="text-lg font-bold">Премия на сотрудника (KPI): ${kpi.toFixed(2)}руб.</p>
+                <h3>Как считали:</h3>
+                <ul>
+                    <li>ТО: ${to_base}руб., <90% → 0.003, 90-99% → 0.006, ≥100% → 0.009. Итог: ${coeff_TO}</li>
+                    <li>ТО с коэффициентом: ${to_base}× ${coeff_TO}= ${to_with_coeff.toFixed(2)}руб.</li>
+                    <li>${chltech_text}</li>
+                    <li>${ik_text}</li>
+                    <li>Скорость: ${speed_percent}%, <95% → 0, 95-99% → 1, ≥100% → 1.25. Итог: ${coeff_speed}</li>
+                    <li>Обращения: ${complaints}, ≥4 → 0.75, 2-3 → 1, <2 → 1.25. Итог: ${coeff_complaints}</li>
+                    <li>HR: ${hr_percent}%, ≤90% → 1, >90% → 1.5. Итог: ${coeff_hr}</li>
+                    <li>Среднее коэффициентов: (${coeff_chltech}+ ${coeff_ik}+ ${coeff_speed}+ ${coeff_complaints}+ ${coeff_hr}) / 5 = ${average.toFixed(2)}</li>
+                    <li>KPI: (${to_with_coeff.toFixed(2)}× ${average.toFixed(2)}) / ${num_deputies}= ${kpi.toFixed(2)}руб.</li>
+                </ul>
+            `;
+            setTimeout(() => resultDiv.classList.add('visible'), 10);
+        }
+
+        function copyManagerResults() {
+            const to_base = document.getElementById('manager_to_base').value || 'не указано';
+            const to_percent = document.getElementById('manager_to').value || 'не указано';
+            const chltech_check = document.getElementById('manager_chltech_check').value || 'не указано';
+            const chltech_percent = chltech_check === 'yes' ? document.getElementById('manager_chltech').value || 'не указано' : 'не проверялось';
+            const tp_check = document.getElementById('manager_tp_check').value || 'не указано';
+            const ik_percent = tp_check === 'yes' ? document.getElementById('manager_ik').value || 'не указано' : 'не проверялось';
+            const speed_percent = document.getElementById('manager_speed').value || 'не указано';
+            const complaints = document.getElementById('manager_complaints').value || 'не указано';
+            const hr_percent = document.getElementById('manager_hr').value || 'не указано';
+            const num_deputies = document.getElementById('manager_num_deputies').value || 'не указано';
+            const resultDiv = document.getElementById('manager_result');
+            let resultsAndLogic = 'не рассчитано';
+            if (resultDiv && resultDiv.innerText.includes('Результат')) {
+                resultsAndLogic = resultDiv.innerText.trim();
+            }
+            const text = `ТО: ${to_base}\nПлан продаж (%): ${to_percent}\nБыла ли проверка ЧЛтех: ${chltech_check === 'yes' ? 'Да' : chltech_check === 'no' ? 'Нет/Не знаю' : 'не указано'}\nЧЛтех (%): ${chltech_percent}\nБыла ли проверка ТП: ${tp_check === 'yes' ? 'Да' : tp_check === 'no' ? 'Нет/Не знаю' : 'не указано'}\nИК (%): ${ik_percent}\nСкорость обслуживания (%): ${speed_percent}\nКоличество обращений: ${complaints}\nHR индекс (%): ${hr_percent}\nКоличество заместителей директоров: ${num_deputies}\n\n${resultsAndLogic}`;
+            navigator.clipboard.writeText(text).then(() => alert('Результаты скопированы!')).catch(() => alert('Не удалось скопировать, вот текст: \n\n' + text));
+        }
+
+        function calculateCashier() {
+            resetBorders('cashier');
+            const fields = ['cashier_to_base', 'cashier_to', 'cashier_complaints',
+                'cashier_coffee', 'cashier_mpcafe', 'cashier_plan_mb', 'cashier_hours_shift', 'cashier_hours_employee', 'cashier_rate'];
+            const resultDiv = document.getElementById('cashier_result');
+            resultDiv.classList.remove('visible');
+
+            if (validateInputs('cashier', fields)) {
+                resultDiv.innerHTML = '<p class="text-red-500">Пожалуйста, перепроверьте введенные данные. Поля не могут быть пустыми или отрицательными.</p>';
+                setTimeout(() => resultDiv.classList.add('visible'), 10);
+                return;
+            }
+
+            const to_base = parseFloat(document.getElementById('cashier_to_base').value);
+            const to_percent = parseFloat(document.getElementById('cashier_to').value);
+            const complaints = parseFloat(document.getElementById('cashier_complaints').value);
+            const coffee_percent = parseFloat(document.getElementById('cashier_coffee').value);
+            const mpcafe_percent = parseFloat(document.getElementById('cashier_mpcafe').value);
+            const plan_mb_percent = parseFloat(document.getElementById('cashier_plan_mb').value);
+            const hours_shift = parseFloat(document.getElementById('cashier_hours_shift').value);
+            const hours_employee = parseFloat(document.getElementById('cashier_hours_employee').value);
+            const rate = parseFloat(document.getElementById('cashier_rate').value);
+
+            // Обработка ЧЛтех
+            const chltech_check = document.getElementById('cashier_chltech_check').value;
+            let chltech_percent;
+            let coeff_chl;
+            if (chltech_check === 'no') {
+                coeff_chl = 1;
+                chltech_percent = 'Не проверялось';
+            } else {
+                chltech_percent = parseFloat(document.getElementById('cashier_chltech').value);
+                coeff_chl = (chltech_percent < 85) ? 0.5 : (chltech_percent < 95) ? 1 : 2;
+            }
+
+            // Обработка ИК (ТП)
+            const tp_check = document.getElementById('cashier_tp_check').value;
+            let ik_percent;
+            let coeff_ik;
+            if (tp_check === 'no') {
+                coeff_ik = 1;
+                ik_percent = 'Не проверялось';
+            } else {
+                ik_percent = parseFloat(document.getElementById('cashier_ik').value);
+                coeff_ik = (ik_percent < 80) ? 0.5 : (ik_percent < 95) ? 1 : 2;
+            }
+
+            let coeff_TO = (to_percent < 100) ? 0.007 : 0.015;
+            let coeff_compl = (complaints === 0) ? 1 : 0.5;
+            let coeff_coffee = (coffee_percent < 100) ? 1 : 1.4;
+            let coeff_mp = (mpcafe_percent < plan_mb_percent) ? 1 : 1.4;
+
+            const kb = to_base * coeff_TO;
+            const oofsm = kb * coeff_chl * coeff_ik * coeff_compl * coeff_coffee * coeff_mp;
+            const employee_bonus = oofsm / hours_shift * hours_employee;
+            const total_per_shift = employee_bonus + (hours_employee * rate);
+
+            // Тексты для вывода
+            const chltech_text = (typeof chltech_percent === 'string') ? `ЧЛтех: ${chltech_percent}, коэффициент: ${coeff_chl}` : `ЧЛтех: ${chltech_percent}%, <85% → 0.5, 85-94% → 1, ≥95% → 2. Итог: ${coeff_chl}`;
+            const ik_text = (typeof ik_percent === 'string') ? `ИК: ${ik_percent}, коэффициент: ${coeff_ik}` : `ИК: ${ik_percent}%, <80% → 0.5, 80-94% → 1, ≥95% → 2. Итог: ${coeff_ik}`;
+
+            resultDiv.innerHTML = `
+                <h3>Результат:</h3>
+                <p class="text-lg font-bold">Общий фонд премии на смену (ООФсм): ${oofsm.toFixed(2)}руб.</p>
+                <p class="text-lg font-bold">Премия на сотрудника: ${employee_bonus.toFixed(2)}руб.</p>
+                <p class="text-lg font-bold">Итого за смену: ${total_per_shift.toFixed(2)}руб.</p>
+                <h3>Как считали:</h3>
+                <ul>
+                    <li>ТО: ${to_base}руб., <100% → 0.007, ≥100% → 0.015. Итог: ${coeff_TO}</li>
+                    <li>КБ: ${to_base}× ${coeff_TO}= ${kb.toFixed(2)}руб.</li>
+                    <li>${chltech_text}</li>
+                    <li>${ik_text}</li>
+                    <li>Жалобы: ${complaints}, =0 → 1, ≥1 → 0.5. Итог: ${coeff_compl}</li>
+                    <li>Кофе: ${coffee_percent}%, <100% → 1, ≥100% → 1.4. Итог: ${coeff_coffee}</li>
+                    <li>МПкафе: ${mpcafe_percent}% (план ${plan_mb_percent}%), <плана → 1, ≥плана → 1.4. Итог: ${coeff_mp}</li>
+                    <li>ООФсм: КБ × ${coeff_chl} × ${coeff_ik} × ${coeff_compl} × ${coeff_coffee} × ${coeff_mp} = ${oofsm.toFixed(2)}руб.</li>
+                    <li>Премия: ${oofsm.toFixed(2)}/ ${hours_shift}× ${hours_employee}= ${employee_bonus.toFixed(2)}руб.</li>
+                    <li>Итого: ${employee_bonus.toFixed(2)}+ (${hours_employee}× ${rate}) = ${total_per_shift.toFixed(2)}руб.</li>
+                </ul>
+            `;
+            setTimeout(() => resultDiv.classList.add('visible'), 10);
+        }
+
+        function copyCashierResults() {
+            const to_base = document.getElementById('cashier_to_base').value || 'не указано';
+            const to_percent = document.getElementById('cashier_to').value || 'не указано';
+            const chltech_check = document.getElementById('cashier_chltech_check').value || 'не указано';
+            const chltech_percent = chltech_check === 'yes' ? document.getElementById('cashier_chltech').value || 'не указано' : 'не проверялось';
+            const tp_check = document.getElementById('cashier_tp_check').value || 'не указано';
+            const ik_percent = tp_check === 'yes' ? document.getElementById('cashier_ik').value || 'не указано' : 'не проверялось';
+            const complaints = document.getElementById('cashier_complaints').value || 'не указано';
+            const coffee_percent = document.getElementById('cashier_coffee').value || 'не указано';
+            const mpcafe_percent = document.getElementById('cashier_mpcafe').value || 'не указано';
+            const plan_mb_percent = document.getElementById('cashier_plan_mb').value || 'не указано';
+            const hours_shift = document.getElementById('cashier_hours_shift').value || 'не указано';
+            const hours_employee = document.getElementById('cashier_hours_employee').value || 'не указано';
+            const rate = document.getElementById('cashier_rate').value || 'не указано';
+            const resultDiv = document.getElementById('cashier_result');
+            let resultsAndLogic = 'не рассчитано';
+            if (resultDiv && resultDiv.innerText.includes('Результат')) {
+                resultsAndLogic = resultDiv.innerText.trim();
+            }
+            const text = `ТО: ${to_base}\nПлан продаж (%): ${to_percent}\nБыла ли проверка ЧЛтех: ${chltech_check === 'yes' ? 'Да' : chltech_check === 'no' ? 'Нет/Не знаю' : 'не указано'}\nЧЛтех (%): ${chltech_percent}\nБыла ли проверка ТП: ${tp_check === 'yes' ? 'Да' : tp_check === 'no' ? 'Нет/Не знаю' : 'не указано'}\nИК (%): ${ik_percent}\nКоличество жалоб: ${complaints}\nПлан по продажам кофе (%): ${coffee_percent}\nМПкафе (%): ${mpcafe_percent}\nПлан на МБ (%): ${plan_mb_percent}\nЧасы в смене: ${hours_shift}\nЧасы отработанные сотрудником: ${hours_employee}\nСтавка: ${rate}\n\n${resultsAndLogic}`;
+            navigator.clipboard.writeText(text).then(() => alert('Результаты скопированы!')).catch(() => alert('Не удалось скопировать, вот текст: \n\n' + text));
+        }
+
+        function calculateCook() {
+            resetBorders('cook');
+            const fields = ['cook_to_base', 'cook_to', 'cook_complaints',
+                'cook_coffee', 'cook_mpcafe', 'cook_plan_mb', 'cook_hours_shift', 'cook_hours_employee', 'cook_rate'];
+            const resultDiv = document.getElementById('cook_result');
+            resultDiv.classList.remove('visible');
+
+            if (validateInputs('cook', fields)) {
+                resultDiv.innerHTML = '<p class="text-red-500">Пожалуйста, перепроверьте введенные данные. Поля не могут быть пустыми или отрицательными.</p>';
+                setTimeout(() => resultDiv.classList.add('visible'), 10);
+                return;
+            }
+
+            const to_base = parseFloat(document.getElementById('cook_to_base').value);
+            const to_percent = parseFloat(document.getElementById('cook_to').value);
+            const complaints = parseFloat(document.getElementById('cook_complaints').value);
+            const coffee_percent = parseFloat(document.getElementById('cook_coffee').value);
+            const mpcafe_percent = parseFloat(document.getElementById('cook_mpcafe').value);
+            const plan_mb_percent = parseFloat(document.getElementById('cook_plan_mb').value);
+            const hours_shift = parseFloat(document.getElementById('cook_hours_shift').value);
+            const hours_employee = parseFloat(document.getElementById('cook_hours_employee').value);
+            const rate = parseFloat(document.getElementById('cook_rate').value);
+
+            // Обработка ЧЛтех
+            const chltech_check = document.getElementById('cook_chltech_check').value;
+            let chltech_percent;
+            let coeff_chl;
+            if (chltech_check === 'no') {
+                coeff_chl = 1;
+                chltech_percent = 'Не проверялось';
+            } else {
+                chltech_percent = parseFloat(document.getElementById('cook_chltech').value);
+                coeff_chl = (chltech_percent < 85) ? 0.5 : (chltech_percent < 95) ? 1 : 2;
+            }
+
+            // Обработка ИК (ТП)
+            const tp_check = document.getElementById('cook_tp_check').value;
+            let ik_percent;
+            let coeff_ik;
+            if (tp_check === 'no') {
+                coeff_ik = 1;
+                ik_percent = 'Не проверялось';
+            } else {
+                ik_percent = parseFloat(document.getElementById('cook_ik').value);
+                coeff_ik = (ik_percent < 80) ? 0.5 : (ik_percent < 95) ? 1 : 2;
+            }
+
+            let coeff_TO = (to_percent < 100) ? 0.005 : 0.01;
+            let coeff_compl = (complaints === 0) ? 1 : 0.5;
+            let coeff_coffee = (coffee_percent < 100) ? 1 : 1.4;
+            let coeff_mp = (mpcafe_percent < plan_mb_percent) ? 1 : 1.4;
+
+            const kb = to_base * coeff_TO;
+            const oofsm = kb * coeff_chl * coeff_ik * coeff_compl * coeff_coffee * coeff_mp;
+            const employee_bonus = oofsm / hours_shift * hours_employee;
+            const total_per_shift = employee_bonus + (hours_employee * rate);
+
+            // Тексты для вывода
+            const chltech_text = (typeof chltech_percent === 'string') ? `ЧЛтех: ${chltech_percent}, коэффициент: ${coeff_chl}` : `ЧЛтех: ${chltech_percent}%, <85% → 0.5, 85-94% → 1, ≥95% → 2. Итог: ${coeff_chl}`;
+            const ik_text = (typeof ik_percent === 'string') ? `ИК: ${ik_percent}, коэффициент: ${coeff_ik}` : `ИК: ${ik_percent}%, <80% → 0.5, 80-94% → 1, ≥95% → 2. Итог: ${coeff_ik}`;
+
+            resultDiv.innerHTML = `
+                <h3>Результат:</h3>
+                <p class="text-lg font-bold">Общий фонд премии на смену (ООФсм): ${oofsm.toFixed(2)}руб.</p>
+                <p class="text-lg font-bold">Премия на сотрудника: ${employee_bonus.toFixed(2)}руб.</p>
+                <p class="text-lg font-bold">Итого за смену: ${total_per_shift.toFixed(2)}руб.</p>
+                <h3>Как считали:</h3>
+                <ul>
+                    <li>ТО: ${to_base}руб., <100% → 0.005, ≥100% → 0.01. Итог: ${coeff_TO}</li>
+                    <li>КБ: ${to_base}× ${coeff_TO}= ${kb.toFixed(2)}руб.</li>
+                    <li>${chltech_text}</li>
+                    <li>${ik_text}</li>
+                    <li>Жалобы: ${complaints}, =0 → 1, ≥1 → 0.5. Итог: ${coeff_compl}</li>
+                    <li>Кофе: ${coffee_percent}%, <100% → 1, ≥100% → 1.4. Итог: ${coeff_coffee}</li>
+                    <li>МПкафе: ${mpcafe_percent}% (план ${plan_mb_percent}%), <плана → 1, ≥плана → 1.4. Итог: ${coeff_mp}</li>
+                    <li>ООФсм: КБ × ${coeff_chl} × ${coeff_ik} × ${coeff_compl} × ${coeff_coffee} × ${coeff_mp} = ${oofsm.toFixed(2)}руб.</li>
+                    <li>Премия: ${oofsm.toFixed(2)}/ ${hours_shift}× ${hours_employee}= ${employee_bonus.toFixed(2)}руб.</li>
+                    <li>Итого: ${employee_bonus.toFixed(2)}+ (${hours_employee}× ${rate}) = ${total_per_shift.toFixed(2)}руб.</li>
+                </ul>
+            `;
+            setTimeout(() => resultDiv.classList.add('visible'), 10);
+        }
+
+        function copyCookResults() {
+            const to_base = document.getElementById('cook_to_base').value || 'не указано';
+            const to_percent = document.getElementById('cook_to').value || 'не указано';
+            const chltech_check = document.getElementById('cook_chltech_check').value || 'не указано';
+            const chltech_percent = chltech_check === 'yes' ? document.getElementById('cook_chltech').value || 'не указано' : 'не проверялось';
+            const tp_check = document.getElementById('cook_tp_check').value || 'не указано';
+            const ik_percent = tp_check === 'yes' ? document.getElementById('cook_ik').value || 'не указано' : 'не проверялось';
+            const complaints = document.getElementById('cook_complaints').value || 'не указано';
+            const coffee_percent = document.getElementById('cook_coffee').value || 'не указано';
+            const mpcafe_percent = document.getElementById('cook_mpcafe').value || 'не указано';
+            const plan_mb_percent = document.getElementById('cook_plan_mb').value || 'не указано';
+            const hours_shift = document.getElementById('cook_hours_shift').value || 'не указано';
+            const hours_employee = document.getElementById('cook_hours_employee').value || 'не указано';
+            const rate = document.getElementById('cook_rate').value || 'не указано';
+            const resultDiv = document.getElementById('cook_result');
+            let resultsAndLogic = 'не рассчитано';
+            if (resultDiv && resultDiv.innerText.includes('Результат')) {
+                resultsAndLogic = resultDiv.innerText.trim();
+            }
+            const text = `ТО: ${to_base}\nПлан продаж (%): ${to_percent}\nБыла ли проверка ЧЛтех: ${chltech_check === 'yes' ? 'Да' : chltech_check === 'no' ? 'Нет/Не знаю' : 'не указано'}\nЧЛтех (%): ${chltech_percent}\nБыла ли проверка ТП: ${tp_check === 'yes' ? 'Да' : tp_check === 'no' ? 'Нет/Не знаю' : 'не указано'}\nИК (%): ${ik_percent}\nКоличество жалоб: ${complaints}\nПлан по продажам кофе (%): ${coffee_percent}\nМПкафе (%): ${mpcafe_percent}\nПлан на МБ (%): ${plan_mb_percent}\nЧасы в смене: ${hours_shift}\nЧасы отработанные сотрудником: ${hours_employee}\nСтавка: ${rate}\n\n${resultsAndLogic}`;
+            navigator.clipboard.writeText(text).then(() => alert('Результаты скопированы!')).catch(() => alert('Не удалось скопировать, вот текст: \n\n' + text));
+        }
+
+        // Функция для обновления заполнения дорожки ползунка
+        function updateRangeFill(input) {
+            const percent = ((input.value - input.min) / (input.max - input.min)) * 100;
+            input.style.setProperty('--fill-percent', `${percent}%`);
+        }
+
+        // Инициализация ползунков при загрузке
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('input[type="range"]').forEach(input => {
+                updateRangeFill(input);
+
+                input.addEventListener('input', function() {
+                    updateRangeFill(this);
+                    const valueSpan = document.getElementById(`${this.id}_value`);
+                    if (valueSpan) {
+                        const val = parseFloat(this.value);
+                        valueSpan.textContent = `${val % 1 === 0 ? val.toFixed(0) : val.toFixed(1)}ч`;
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
